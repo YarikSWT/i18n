@@ -179,7 +179,8 @@ export function generateLoaderOptions(
 `
           const basicVueI18nConfigCode = generateVueI18nConfigration(vueI18nConfigPathInfo, ({ absolute: absolutePath, relative: relativePath, hash, relativeBase, type }, { dir, base, ext }) => {
             const configImportKey = makeImportKey(relativeBase, dir, base)
-            return `const vueI18n = await vueI18nConfigLoader((${genDynamicImport(genImportSpecifier(configImportKey, ext, absolutePath, type, { hash, virtualId: NUXT_I18N_CONFIG_PROXY_ID }), { comment: `webpackChunkName: "${normalizeWithUnderScore(relativePath)}_${hash}"` })}))\n`
+            return `const vueI18n = await vueI18nConfigLoader((() => import("${absolutePath}" /* webpackChunkName: "i18n_config_${hash}" */)))\n`
+            //return `const vueI18n = await vueI18nConfigLoader((${genDynamicImport(genImportSpecifier(configImportKey, ext, absolutePath, type, { hash, virtualId: NUXT_I18N_CONFIG_PROXY_ID }), { comment: `webpackChunkName: "${normalizeWithUnderScore(relativePath)}_${hash}"` })}))\n`
           })
           if (basicVueI18nConfigCode != null) {
             genCodes += `  ${basicVueI18nConfigCode}`
@@ -256,7 +257,8 @@ export function generateLoaderOptions(
             const { root, dir, base, ext } = parsePath(file)
             const key = makeImportKey(root, dir, base)
             const loadPath = resolveLocaleRelativePath(localesRelativeBase, langDir, file)
-            return `{ key: ${toCode(loadPath)}, load: ${genDynamicImport(genImportSpecifier(loadPath, ext, path, type, { hash, query: { locale: localeInfo.code } }), { comment: `webpackChunkName: "lang_${normalizeWithUnderScore(key)}"` })} }`
+	    return `{ key: ${toCode(loadPath)}, load: () => import(/* webpackChunkName: "lang_${normalizeWithUnderScore(key)}" */"${file}")}`
+            // return `{ key: ${toCode(loadPath)}, load: ${genDynamicImport(genImportSpecifier(loadPath, ext, path, type, { hash, query: { locale: localeInfo.code } }), { comment: `webpackChunkName: "lang_${normalizeWithUnderScore(key)}"` })} }`
           })}],\n`
         }
       }
